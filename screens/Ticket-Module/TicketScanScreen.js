@@ -1,72 +1,66 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
+  ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
-import * as CameraModule from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { supabase } from '../../lib/supabase';
 
-const Camera = CameraModule.CameraView;
-
-console.log('📦 CameraModule keys:', Object.keys(CameraModule));
-console.log('📷 typeof Camera:', typeof Camera);
-console.log('🔍 CameraModule.Camera === Camera:', CameraModule.Camera === Camera);
-
-export default function TicketScanScreen() {
+export default function TicketScanHistoryScreen() {
   const navigation = useNavigation();
-  const cameraRef = useRef(null);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [scanned, setScanned] = useState(false);
+  const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    (async () => {
-      const { status } = await CameraModule.Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-      console.log('📲 Camera permission status:', status);
-    })();
+    fetchLogs();
   }, []);
 
-  if (hasPermission === null) return <Text>Requesting camera permission…</Text>;
-  if (hasPermission === false) return <Text>No access to camera</Text>;
+  const fetchLogs = async () => {
+    const { data, error } = await supabase
+      .from('ticket_scans')
+      .select('id, ticket_id, scanned_at, scanned_by')
+      .order('scanned_at', { ascending: false });
 
-  if (!Camera || typeof Camera !== 'function') {
-    console.log('❌ Camera is not a valid React component:', Camera);
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.fallbackText}>Camera module failed to load</Text>
-        <Text style={styles.fallbackText}>Check console logs for more details</Text>
-      </SafeAreaView>
-    );
-  }
+    if (error) {
+      console.error('Failed to fetch logs:', error.message);
+    } else {
+      setLogs(data);
+    }
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Scan Tickets</Text>
+        <Text style={styles.headerText}>Ticket Scan History</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <Camera
-        ref={cameraRef}
-        style={styles.camera}
-        ratio="16:9"
-      />
-
-      <Text style={styles.instruction}>Align the QR code within the frame</Text>
+      <ScrollView contentContainerStyle={styles.content}>
+        {logs.length === 0 ? (
+          <Text style={styles.emptyText}>No scans recorded yet.</Text>
+        ) : (
+          logs.map((log) => (
+            <View key={log.id} style={styles.logItem}>
+              <Text style={styles.logText}>Ticket ID: {log.ticket_id}</Text>
+              <Text style={styles.logText}>Scanned At: {new Date(log.scanned_at).toLocaleString()}</Text>
+              <Text style={styles.logText}>By: {log.scanned_by || 'N/A'}</Text>
+            </View>
+          ))
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
+  safeArea: { flex: 1, backgroundColor: '#fff' },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -81,20 +75,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  camera: {
-    flex: 1,
-    width: '100%',
+  content: {
+    paddingHorizontal: 20,
+    paddingBottom: 30,
   },
-  instruction: {
+  emptyText: {
     textAlign: 'center',
-    padding: 12,
-    backgroundColor: '#000',
-    color: '#fff',
+    color: '#999',
     fontSize: 16,
+    marginTop: 40,
   },
-  fallbackText: {
-    fontSize: 16,
-    marginVertical: 10,
+  logItem: {
+    paddingVertical: 12,
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+  },
+  logText: {
+    fontSize: 14,
     color: '#333',
   },
 });
