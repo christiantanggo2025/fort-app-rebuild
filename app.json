@@ -1,29 +1,49 @@
 {
   "expo": {
-    "name": "Fort-App-REBUILD",
-    "slug": "Fort-App-REBUILD",
+    "name": "Fort App",
+    "slug": "fort-app-rebuild",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.fortfun.app",
+      "buildConfiguration": "Release",
+      "usesNonExemptEncryption": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "jsEngine": "jsc"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
+      "package": "com.fortfun.app",
+      "enableHermes": false,
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-barcode-scanner"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "8457b09f-f569-4623-97a3-47ab3d7f5e77"
+      }
+    },
+    "owner": "christiantanggo"
   }
 }
