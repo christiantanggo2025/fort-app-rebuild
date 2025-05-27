@@ -21,7 +21,6 @@
     "date-fns": "^4.1.0",
     "expo": "~53.0.9",
     "expo-asset": "^11.1.5",
-    "expo-barcode-scanner": "^13.0.1",
     "expo-camera": "~16.1.6",
     "expo-dev-client": "~5.1.8",
     "expo-device": "~7.1.4",
