@@ -36,8 +36,6 @@ const ScheduleCreatorScreen = () => {
   }, []);
 
   const handleGenerate = async () => {
-    console.log("⚙️ handleGenerate triggered");
-
     if (!selectedConfig) {
       Alert.alert("Error", "No config selected.");
       return;
@@ -175,6 +173,7 @@ const ScheduleCreatorScreen = () => {
         court: match.court,
         match_date: date,
         day: selectedDay,
+        is_posted: true, // ✅ Required to show in print screen
       }))
     );
 

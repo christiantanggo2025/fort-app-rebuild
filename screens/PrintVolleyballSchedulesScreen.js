@@ -22,6 +22,7 @@ export default function PrintVolleyballSchedulesScreen() {
   const [showPicker, setShowPicker] = useState(false);
   const [schedule, setSchedule] = useState([]);
   const [postedAt, setPostedAt] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     fetchPostedScheduleForDate(selectedDate);
@@ -44,11 +45,26 @@ export default function PrintVolleyballSchedulesScreen() {
     }
 
     setSchedule(data);
-    if (data.length > 0) {
-      setPostedAt(data[0].created_at || formattedDate);
-    } else {
-      setPostedAt('');
-    }
+    setPostedAt(data.length > 0 ? data[0].created_at || formattedDate : '');
+    setShowPreview(false);
+  };
+
+  const getAllTeams = (matches) => {
+    const teams = new Set();
+    matches.forEach(m => {
+      if (m.team1) teams.add(m.team1);
+      if (m.team2) teams.add(m.team2);
+    });
+    return Array.from(teams);
+  };
+
+  const getByeTeamsForRound = (allTeams, matches) => {
+    const playing = new Set();
+    matches.forEach(m => {
+      if (m.team1) playing.add(m.team1);
+      if (m.team2) playing.add(m.team2);
+    });
+    return allTeams.filter(t => !playing.has(t));
   };
 
   const handleDateChange = (event, date) => {
@@ -62,9 +78,10 @@ export default function PrintVolleyballSchedulesScreen() {
       return;
     }
 
-    const grouped = schedule.reduce((acc, match) => {
-      if (!acc[match.round]) acc[match.round] = [];
-      acc[match.round].push(match);
+    const allTeams = getAllTeams(schedule);
+    const grouped = schedule.reduce((acc, m) => {
+      if (!acc[m.round]) acc[m.round] = [];
+      acc[m.round].push(m);
       return acc;
     }, {});
 
@@ -96,6 +113,7 @@ export default function PrintVolleyballSchedulesScreen() {
     `;
 
     Object.entries(grouped).forEach(([round, matches]) => {
+      const byeTeams = getByeTeamsForRound(allTeams, matches);
       html += `
         <div class="page-break">
           <h2>Round ${round}</h2>
@@ -107,20 +125,17 @@ export default function PrintVolleyballSchedulesScreen() {
               <th>Winner</th>
               <th>Score</th>
             </tr>
-            ${matches
-              .map(
-                (m) => `
+            ${matches.map(m => `
               <tr>
                 <td>${m.court}</td>
-                <td>${m.team1}</td>
-                <td>${m.team2}</td>
+                <td>${m.team1 || '—'}</td>
+                <td>${m.team2 || 'BYE'}</td>
                 <td></td>
                 <td></td>
               </tr>
-            `
-              )
-              .join('')}
+            `).join('')}
           </table>
+          ${byeTeams.length > 0 ? `<p><strong>BYE:</strong> ${byeTeams.join(', ')}</p>` : ''}
         </div>
       `;
     });
@@ -158,6 +173,46 @@ export default function PrintVolleyballSchedulesScreen() {
         <TouchableOpacity style={styles.generateButton} onPress={generatePDF}>
           <Text style={styles.generateText}>Download Schedule PDF</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.previewButton} onPress={() => setShowPreview(!showPreview)}>
+          <Text style={styles.generateText}>Preview Schedule</Text>
+        </TouchableOpacity>
+
+        {showPreview && schedule.length > 0 && (
+          <View style={{ marginTop: 20 }}>
+            {Object.entries(
+              schedule.reduce((acc, m) => {
+                if (!acc[m.round]) acc[m.round] = [];
+                acc[m.round].push(m);
+                return acc;
+              }, {})
+            ).map(([round, matches]) => {
+              const allTeams = getAllTeams(schedule);
+              const byeTeams = getByeTeamsForRound(allTeams, matches);
+              return (
+                <View key={round} style={{ marginBottom: 16 }}>
+                  <Text style={styles.roundTitle}>Round {round}</Text>
+                  {matches.map((m, i) => (
+                    <Text key={i} style={styles.matchText}>
+                      Court {m.court}: {m.team1 || '—'} vs {m.team2 || 'BYE'}
+                    </Text>
+                  ))}
+                  {byeTeams.length > 0 && (
+                    <Text style={styles.byeText}>
+                      BYE: {byeTeams.join(', ')}
+                    </Text>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {showPreview && schedule.length === 0 && (
+          <Text style={{ marginTop: 16, fontStyle: 'italic' }}>
+            No schedule available for selected date.
+          </Text>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -193,12 +248,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#008080',
     padding: 14,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 10,
+  },
+  previewButton: {
+    backgroundColor: '#008080',
+    padding: 14,
+    borderRadius: 10,
+    marginTop: 12,
   },
   generateText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
     textAlign: 'center',
+  },
+  roundTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  matchText: {
+    fontSize: 15,
+    marginBottom: 4,
+  },
+  byeText: {
+    marginTop: 6,
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: '#444',
   },
 });

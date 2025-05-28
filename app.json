@@ -19,19 +19,23 @@
     },
     "ios": {
       "bundleIdentifier": "com.fortfun.app",
-      "buildConfiguration": "Release",
       "usesNonExemptEncryption": false,
       "config": {
         "usesNonExemptEncryption": false
       },
-      "jsEngine": "jsc"
+      "jsEngine": "jsc",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app may request camera access in the future for scanning tickets or QR codes."
+      }
     },
     "android": {
       "package": "com.fortfun.app",
       "enableHermes": false,
       "permissions": [
         "android.permission.CAMERA"
-      ]
+      ],
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
