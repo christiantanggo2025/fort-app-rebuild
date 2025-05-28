@@ -1,3 +1,5 @@
+// UPDATED: PrintVolleyballSchedulesScreen.js — uses date range (gte/lt) for reliable schedule match
+
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -29,12 +31,16 @@ export default function PrintVolleyballSchedulesScreen() {
   }, [selectedDate]);
 
   const fetchPostedScheduleForDate = async (date) => {
-    const formattedDate = date.toISOString().split('T')[0];
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
 
     const { data, error } = await supabase
       .from('schedules')
       .select('*')
-      .eq('match_date', formattedDate)
+      .gte('match_date', start.toISOString())
+      .lt('match_date', end.toISOString())
       .eq('is_posted', true)
       .order('round', { ascending: true })
       .order('court', { ascending: true });
@@ -45,7 +51,7 @@ export default function PrintVolleyballSchedulesScreen() {
     }
 
     setSchedule(data);
-    setPostedAt(data.length > 0 ? data[0].created_at || formattedDate : '');
+    setPostedAt(data.length > 0 ? data[0].created_at || start.toDateString() : '');
     setShowPreview(false);
   };
 
@@ -135,7 +141,7 @@ export default function PrintVolleyballSchedulesScreen() {
               </tr>
             `).join('')}
           </table>
-          ${byeTeams.length > 0 ? `<p><strong>BYE:</strong> ${byeTeams.join(', ')}</p>` : ''}
+          ${byeTeams.length > 0 ? `<p><strong>Teams with a bye:</strong> ${byeTeams.join(', ')}</p>` : ''}
         </div>
       `;
     });
@@ -199,7 +205,7 @@ export default function PrintVolleyballSchedulesScreen() {
                   ))}
                   {byeTeams.length > 0 && (
                     <Text style={styles.byeText}>
-                      BYE: {byeTeams.join(', ')}
+                      Teams with a bye: {byeTeams.join(', ')}
                     </Text>
                   )}
                 </View>

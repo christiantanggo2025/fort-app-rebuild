@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   ScrollView,
   Dimensions,
-  Image,
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,16 +18,6 @@ const buttonWidth = (width - 40 - 2 * buttonSpacing) / 3;
 export default function EmployeeDashboardScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Top Logo */}
-      <View style={styles.logoContainer}>
-        <Image
-          source={require('../assets/Buttons/Tavari-Logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-
-      </View>
-
       {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -67,20 +56,16 @@ export default function EmployeeDashboardScreen({ navigation }) {
         <View style={styles.row}>
           <TouchableOpacity
             style={[styles.button, styles.greyButton]}
-            onPress={() => alert('Nexo Task Manager Coming Soon')}
+            onPress={() => alert('Tavari Task Manager Coming Soon')}
           >
-            <Text style={styles.buttonText}>Nexo Task Manager</Text>
+            <Text style={styles.buttonText}>Tavari Task Manager</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.imageButton}
+            style={styles.button}
             onPress={() => navigation.navigate('TicketManagerScreen')}
           >
-            <Image
-              source={require('../assets/Buttons/Tavari-Tickets-Button.png')}
-              style={styles.image}
-              resizeMode="contain"
-            />
+            <Text style={styles.buttonText}>Tavari Tickets</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -110,20 +95,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  logoContainer: {
-    width: '100%',
-    alignItems: 'center',
-    paddingTop: 10,
-  },
-  logo: {
-    width: 180,
-    height: 60,
-  },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    marginTop: 10,
+    marginTop: 20,
     marginBottom: 20,
     alignItems: 'center',
   },
@@ -151,19 +127,6 @@ const styles = StyleSheet.create({
   },
   greyButton: {
     backgroundColor: '#999',
-  },
-  imageButton: {
-    width: buttonWidth,
-    aspectRatio: 1,
-    borderRadius: 12,
-    backgroundColor: '#eee',
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  image: {
-    width: '90%',
-    height: '90%',
   },
   buttonText: {
     color: '#fff',

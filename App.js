@@ -58,6 +58,7 @@ import ManualTicketEntry from './screens/Ticket-Module/ManualTicketEntry';
 import TicketTypeScreen from './screens/Ticket-Module/TicketTypeScreen';
 import CheckEngine from './screens/CheckEngine';
 import StylingTestScreen from './screens/StylingTestScreen';
+import ViewPostedSchedules from './screens/ViewPostedSchedules';
 
 import { Buffer } from 'buffer';
 global.Buffer = Buffer;
@@ -133,6 +134,7 @@ export default function App() {
             <Stack.Screen name="TicketTypeScreen" component={TicketTypeScreen} />
             <Stack.Screen name="CheckEngine" component={CheckEngine} />
             <Stack.Screen name="StylingTestScreen" component={StylingTestScreen} />
+            <Stack.Screen name="ViewPostedSchedules" component={ViewPostedSchedules} />
           </Stack.Navigator>
         </NavigationContainer>
       </AuthProvider>

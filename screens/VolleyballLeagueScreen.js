@@ -2,82 +2,76 @@ import React from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
+  TouchableOpacity,
+  ScrollView,
   SafeAreaView,
+  Alert,
   Dimensions,
+  Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+
+const { width } = Dimensions.get('window');
+const buttonSpacing = 20;
+const buttonWidth = (width - 40 - 2 * buttonSpacing) / 3;
 
 export default function VolleyballLeagueScreen() {
   const navigation = useNavigation();
 
   const buttons = [
-    { label: 'Absence Manager', screen: 'AbsenceManagement' },
-    { label: 'Schedule Manager', screen: 'ScheduleCreator' },
-    { label: 'Score Manager', screen: 'ScoreManagement' },
-    { label: 'Team Manager', screen: 'TeamMaintenance' },
-    { label: 'League Settings', screen: 'LeagueSettings' },
-    { label: 'Print Schedules', screen: 'PrintVolleyballSchedules' },
-    { label: 'Carousel Editor', screen: 'VolleyballCarouselEditorScreen' },
-    { label: 'Banner Editor', screen: 'GameDayBannerScreen' },
-    { label: 'Volleyball Store', screen: null }, // Feature Coming Soon
+    { title: 'Absence Manager', screen: 'AbsenceManagement' },
+    { title: 'Banner Editor', screen: 'GameDayBannerScreen' },
+    { title: 'Score Manager', screen: 'ScoreManagement' },
+    { title: 'Schedule Manager', screen: 'ScheduleCreator' },
+    { title: 'Print Schedules', screen: 'PrintVolleyballSchedules' },
+    { title: 'View Posted Schedules', screen: 'ViewPostedSchedules' },
+    { title: 'Carousel Editor', screen: 'VolleyballCarouselEditorScreen' },
+    {
+      title: 'Volleyball Store',
+      action: () => Alert.alert('Coming Soon', 'This feature is coming soon.'),
+    },
+    { title: 'Team Manager', screen: 'TeamMaintenance' },
+    { title: 'League Settings', screen: 'LeagueSettings' },
   ];
-
-  // Generate rows with 3 buttons per row
-  const buttonRows = [];
-  for (let i = 0; i < buttons.length; i += 3) {
-    buttonRows.push(buttons.slice(i, i + 3));
-  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
+      {/* Back + Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={28} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Volleyball Leagues</Text>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 28 }} />
       </View>
 
-      {/* Button Grid */}
-      <View style={styles.mainContent}>
-        {buttonRows.map((row, rowIndex) => (
+      <ScrollView contentContainerStyle={styles.gridContainer}>
+        {/* Render buttons in rows of 3 */}
+        {Array.from({ length: Math.ceil(buttons.length / 3) }).map((_, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
-            {row.map((btn, idx) => (
+            {buttons.slice(rowIndex * 3, rowIndex * 3 + 3).map((btn, index) => (
               <TouchableOpacity
-                key={idx}
+                key={index}
                 style={styles.button}
                 onPress={() => {
-                  if (btn.label === 'Volleyball Store') {
-                    alert("Feature Coming Soon");
-                  } else {
+                  if (btn.screen) {
                     navigation.navigate(btn.screen);
+                  } else if (btn.action) {
+                    btn.action();
                   }
                 }}
               >
-                <Text style={styles.buttonText}>{btn.label}</Text>
+                <Text style={styles.buttonText}>{btn.title}</Text>
               </TouchableOpacity>
             ))}
-            {/* Fill empty slots with transparent fillers */}
-            {Array(3 - row.length)
-              .fill(null)
-              .map((_, fillerIndex) => (
-                <View key={`filler-${fillerIndex}`} style={styles.buttonFiller} />
-              ))}
           </View>
         ))}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
-
-const { width } = Dimensions.get('window');
-const totalPadding = 40; // 20px left + 20px right
-const spacing = 20;
-const buttonWidth = (width - totalPadding - spacing * 2) / 3;
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -87,23 +81,23 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 20,
     marginTop: 20,
     marginBottom: 20,
+    alignItems: 'center',
   },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
   },
-  mainContent: {
-    flex: 1,
+  gridContainer: {
     paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     marginBottom: 20,
   },
   button: {
@@ -113,17 +107,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 20,
-  },
-  buttonFiller: {
-    width: buttonWidth,
-    aspectRatio: 1,
-    marginRight: 20,
-    backgroundColor: 'transparent',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
+    paddingHorizontal: 6,
   },
 });
